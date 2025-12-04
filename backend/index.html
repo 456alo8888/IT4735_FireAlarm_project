@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>IoT Fire Sensor Demo</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1 { color: #c0392b; }
+        table { border-collapse: collapse; width: 50%; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+
+<h1>Realtime Fire Sensor Data</h1>
+
+<table id="sensorTable">
+    <thead>
+        <tr>
+            <th>Timestamp</th>
+            <th>Temperature (°C)</th>
+            <th>Smoke</th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- Dữ liệu realtime sẽ xuất hiện ở đây -->
+    </tbody>
+</table>
+
+<script>
+    // 1️⃣ Kết nối WebSocket
+    const ws = new WebSocket("ws://localhost:8080");
+
+    ws.onopen = () => {
+        console.log("Connected to WebSocket server");
+    };
+
+    ws.onmessage = (event) => {
+        try {
+            const data = JSON.parse(event.data);
+            console.log("Realtime data:", data);
+
+            // 2️⃣ Thêm dữ liệu vào bảng
+            const table = document.getElementById("sensorTable").querySelector("tbody");
+            const row = table.insertRow(0); // insert đầu bảng
+            const timeCell = row.insertCell(0);
+            const tempCell = row.insertCell(1);
+            const smokeCell = row.insertCell(2);
+
+            // Hiển thị
+            timeCell.textContent = new Date(data.timestamp).toLocaleString();
+            tempCell.textContent = data.temp;
+            smokeCell.textContent = data.smoke;
+
+            // Giới hạn bảng chỉ hiển thị 20 bản ghi mới nhất
+            while (table.rows.length > 20) {
+                table.deleteRow(-1);
+            }
+        } catch (err) {
+            console.error("Invalid message:", err);
+        }
+    };
+
+    ws.onclose = () => console.log("WebSocket connection closed");
+    ws.onerror = (err) => console.error("WebSocket error:", err);
+</script>
+
+</body>
+</html>
