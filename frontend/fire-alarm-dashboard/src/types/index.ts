@@ -8,8 +8,10 @@ export interface Device {
   readonly name: string;
   status: DeviceStatus;
   // Sensor readings
-  readonly indexValue1: string; // e.g., Smoke level percentage
-  readonly indexValue2: string; // e.g., Temperature reading
+  readonly indexValue1: string; // Flame analog value
+  readonly indexValue2: string; // Gas analog value
+  readonly indexState1: number;  // Flame digital state (0 or 1)
+  readonly indexState2: number;  // Gas digital state (0 or 1)
   // Control device status
   bellStatus: BellStatus;
   relayStatus: RelayStatus;
