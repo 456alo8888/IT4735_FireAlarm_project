@@ -59,8 +59,8 @@ const calculateStats = (devices: Device[]): DeviceStats => {
 // 🔥 Hàm tính trạng thái từ flame + gas
 // ─────────────────────────────────────────────
 const computeStatus = (flame_state: number, gas_state: number): DeviceStatus => {
-  if (flame_state === 1 && gas_state === 1) return 'Alarm';
-  if (flame_state === 0 && gas_state === 1) return 'Warning';
+  if (flame_state === 0 && gas_state === 0) return 'Alarm';
+  if (flame_state === 1 && gas_state === 0) return 'Warning';
   return 'Normal';
 };
 
@@ -78,7 +78,7 @@ export const DeviceProvider: React.FC<DeviceProviderProps> = ({ children }) => {
   // 🔥 4️⃣ WebSocket Listener — nhận flame + gas
   // ─────────────────────────────────────────────
   useEffect(() => {
-    const ws = new WebSocket("ws://localhost:8080");
+    const ws = new WebSocket("ws://192.168.4.5:8080");
 
     ws.onmessage = (event) => {
       try {

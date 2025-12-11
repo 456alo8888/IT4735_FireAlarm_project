@@ -5,10 +5,10 @@ const express = require('express');
 const WebSocket = require('ws');
 const cors = require('cors');
 
-const MQTT_BROKER = "fb832bfab8614ad58aaf234a44bf02eb.s1.eu.hivemq.cloud";
-const MQTT_PORT = 8883;
-const MQTT_USERNAME = "khanglt0004";
-const MQTT_PASSWORD = "Khang123456";
+const MQTT_BROKER = "localhost";
+const MQTT_PORT = 1883;
+// const MQTT_USERNAME = "khanglt0004";
+// const MQTT_PASSWORD = "Khang123456";
 
 
 topic_publish_flame = "esp32/flame_sensor";
@@ -48,9 +48,9 @@ async function startMQTT() {
     const client = mqtt.connect({
         host: MQTT_BROKER,
         port: MQTT_PORT,
-        username: MQTT_USERNAME,
-        password: MQTT_PASSWORD,
-        protocol: 'mqtts'
+        // username: MQTT_USERNAME,
+        // password: MQTT_PASSWORD,
+        protocol: 'mqtt'
     });
 
     client.on('connect', () => {
@@ -100,6 +100,11 @@ app.get('/api/latest', async (req, res) => {
 
 // ===== 5️⃣ Start Express =====
 const PORT = 3000;
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
     console.log(`✅ Server running at http://localhost:${PORT}`);
 });
+
+
+// app.listen(3000, '0.0.0.0', () => {
+//   console.log("Server running on port 3000");
+// });

@@ -53,8 +53,8 @@ const getDeviceMapLink = useCallback((deviceId: string): string => {
               <th className={`${TABLE_STYLES.header} w-20`}>ID</th>
               <th className={`${TABLE_STYLES.header} w-32`}>Name</th>
               <th className={`${TABLE_STYLES.header} w-24`}>Status</th>
-              <th className={`${TABLE_STYLES.header} w-28`}>Index Value 1</th>
-              <th className={`${TABLE_STYLES.header} w-28`}>Index Value 2</th>
+              <th className={`${TABLE_STYLES.header} w-28`}>Flame Value</th>
+              <th className={`${TABLE_STYLES.header} w-28`}>Gas Value</th>
               <th className={`${TABLE_STYLES.header} w-28`}>Bell Status</th>
               <th className={`${TABLE_STYLES.header} w-28`}>Relay Status</th>
               <th className={`${TABLE_STYLES.header} w-24`}>Location</th>
