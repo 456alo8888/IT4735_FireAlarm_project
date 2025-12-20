@@ -24,8 +24,18 @@ const CommandPanel: React.FC = () => {
     const isCurrentlyActive = currentDevice?.bellStatus === 'Active';
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const response = await fetch('http://localhost:3000/api/command', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          deviceId: selectedDevice,
+          buzzer: !isCurrentlyActive
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Command failed: ${response.status}`);
+      }
 
       updateBellStatus(selectedDevice, !isCurrentlyActive);
 
@@ -65,8 +75,18 @@ const CommandPanel: React.FC = () => {
     const isCurrentlyOpen = currentDevice?.relayStatus === 'Open';
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const response = await fetch('http://localhost:3000/api/command', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          deviceId: selectedDevice,
+          relay: !isCurrentlyOpen
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Command failed: ${response.status}`);
+      }
 
       updateRelayStatus(selectedDevice, !isCurrentlyOpen);
 
