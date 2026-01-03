@@ -60,7 +60,7 @@ const calculateStats = (devices: Device[]): DeviceStats => {
 // ─────────────────────────────────────────────
 const computeStatus = (flame_state: number, gas_state: number): DeviceStatus => {
   if (flame_state === 0 && gas_state === 0) return 'Alarm';
-  if (flame_state === 1 && gas_state === 0) return 'Warning';
+  if (flame_state === 0 && gas_state === 1) return 'Warning';
   return 'Normal';
 };
 
@@ -75,48 +75,84 @@ export const DeviceProvider: React.FC<DeviceProviderProps> = ({ children }) => {
   const stats: DeviceStats = calculateStats(devices);
 
   // ─────────────────────────────────────────────
-  // 🔥 4️⃣ WebSocket Listener — nhận flame + gas
+  // 🔥 4️⃣ WebSocket Listener — nhận flame + gas + state
   // ─────────────────────────────────────────────
   useEffect(() => {
-    const ws = new WebSocket("ws://192.168.4.5:8080");
+    const ws = new WebSocket("ws://localhost:8080");
+
+    ws.onopen = () => {
+      console.log('✅ WebSocket connected to backend');
+    };
+
+    ws.onerror = (error) => {
+      console.error('❌ WebSocket error:', error);
+    };
+
+    ws.onclose = () => {
+      console.log('🔌 WebSocket disconnected');
+    };
 
     ws.onmessage = (event) => {
       try {
         const msg = JSON.parse(event.data);
+        console.log('📨 Received WebSocket message:', msg);
 
         const topic = msg.topic;
-        const DO_State = msg.DO_State;
-        const AO_Value = msg.AO_Value;
+        const device_id = msg.device_id;
+
+        // Map device_id từ backend sang FA-101
+        if (device_id !== 'esp32_01') return;
 
         setDevices(prev =>
           prev.map(device => {
             if (device.id !== 'FA-101') return device;
 
-            // ✅ Read from prev callback parameter to avoid race conditions
-            const flame_state = topic === "esp32/flame_sensor"
-              ? DO_State
-              : device.indexState1;
+            // 🔥 XỬ LÝ TOPIC FLAME
+            if (topic === "fire_alarm/esp32_01/sensor/flame") {
+              const flame_state = msg.DO_State;
+              const flame_value = msg.AO_Value;
 
-            const gas_state = topic === "esp32/gas_sensor"
-              ? DO_State
-              : device.indexState2;
+              return {
+                ...device,
+                indexValue1: String(flame_value),
+                indexState1: flame_state,
+                status: computeStatus(flame_state, device.indexState2)
+              };
+            }
 
-            const flame_value = topic === "esp32/flame_sensor"
-              ? AO_Value
-              : Number(device.indexValue1);
+            // 💨 XỬ LÝ TOPIC GAS
+            if (topic === "fire_alarm/esp32_01/sensor/gas") {
+              const gas_state = msg.DO_State;
+              const gas_value = msg.AO_Value;
 
-            const gas_value = topic === "esp32/gas_sensor"
-              ? AO_Value
-              : Number(device.indexValue2);
+              return {
+                ...device,
+                indexValue2: String(gas_value),
+                indexState2: gas_state,
+                status: computeStatus(device.indexState1, gas_state)
+              };
+            }
 
-            return {
-              ...device,
-              indexValue1: String(flame_value),
-              indexValue2: String(gas_value),
-              indexState1: flame_state,
-              indexState2: gas_state,
-              status: computeStatus(flame_state, gas_state)
-            };
+            // 🔔 XỬ LÝ TOPIC STATE (buzzer + valve)
+            if (topic === "fire_alarm/esp32_01/sensor/state") {
+              const buzzerState = msg.BUZZER_State; // true/false (boolean từ ESP32)
+              const valveState = msg.VALVE_State;   // true/false (boolean từ ESP32)
+
+              console.log('🔔 Received STATE update:', { 
+                buzzerState, 
+                valveState,
+                bellStatus: buzzerState === true ? 'Active' : 'Silent',
+                relayStatus: valveState === true ? 'Open' : 'Closed'
+              });
+
+              return {
+                ...device,
+                bellStatus: buzzerState === true ? 'Active' : 'Silent',
+                relayStatus: valveState === true ? 'Open' : 'Closed'
+              };
+            }
+
+            return device;
           })
         );
 
@@ -125,8 +161,9 @@ export const DeviceProvider: React.FC<DeviceProviderProps> = ({ children }) => {
       }
     };
 
-    ws.onopen = () => console.log("WS connected");
-    ws.onerror = () => console.log("WS error");
+    ws.onopen = () => console.log("✅ WS connected");
+    ws.onerror = (err) => console.error("❌ WS error:", err);
+    ws.onclose = () => console.log("🔌 WS closed");
 
     return () => ws.close();
   }, []);

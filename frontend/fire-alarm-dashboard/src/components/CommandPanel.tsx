@@ -5,7 +5,7 @@ import { useActivities } from '../contexts/ActivityContext';
 const CommandPanel: React.FC = () => {
   const [selectedDevice, setSelectedDevice] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const { devices, updateBellStatus, updateRelayStatus } = useDevices();
+  const { devices } = useDevices();
   const { addActivity } = useActivities();
 
   // Memoize device lookup to prevent repeated array operations
@@ -22,48 +22,48 @@ const CommandPanel: React.FC = () => {
 
     setIsLoading(true);
     const isCurrentlyActive = currentDevice?.bellStatus === 'Active';
+    const targetState = !isCurrentlyActive; // Trạng thái mục tiêu
+
+    console.log('🔔 Sending bell command:', { selectedDevice, currentState: isCurrentlyActive, targetState });
 
     try {
-      const response = await fetch('http://localhost:3000/api/command', {
+      const response = await fetch('http://127.0.0.1:3000/api/command', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           deviceId: selectedDevice,
-          buzzer: !isCurrentlyActive
+          buzzer: targetState
         })
       });
 
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ Command failed:', response.status, errorText);
         throw new Error(`Command failed: ${response.status}`);
       }
 
-      updateBellStatus(selectedDevice, !isCurrentlyActive);
+      const result = await response.json();
+      console.log('✅ Command sent successfully:', result);
 
-      if (isCurrentlyActive) {
-        addActivity({
-          type: 'Command',
-          device: 'Bell Off',
-          description: `Manual command sent to ${selectedDevice}.`,
-          time: 'Just now',
-          icon: 'notifications_off',
-          color: 'text-blue-500'
-        });
-      } else {
-        addActivity({
-          type: 'Command',
-          device: 'Bell On',
-          description: `Manual command sent to ${selectedDevice}.`,
-          time: 'Just now',
-          icon: 'notifications_active',
-          color: 'text-blue-500'
-        });
-      }
+      // ⚠️ KHÔNG cập nhật state ngay - đợi ESP32 gửi state mới về qua WebSocket
+      // updateBellStatus(selectedDevice, targetState);
+
+      // Log activity dựa trên target state
+      addActivity({
+        type: 'Command',
+        device: targetState ? 'Bell On' : 'Bell Off',
+        description: `Command sent to ${selectedDevice} - waiting for device response...`,
+        time: 'Just now',
+        icon: targetState ? 'notifications_active' : 'notifications_off',
+        color: 'text-blue-500'
+      });
     } catch (error) {
-      console.error('Error toggling bell:', error);
+      console.error('❌ Error toggling bell:', error);
+      alert('Failed to send bell command. Check console for details.');
     } finally {
       setIsLoading(false);
     }
-  }, [currentDevice, updateBellStatus, addActivity]);
+  }, [selectedDevice, currentDevice, addActivity]);
 
   const handleRelayToggle = useCallback(async () => {
     if (!selectedDevice) {
@@ -73,48 +73,48 @@ const CommandPanel: React.FC = () => {
 
     setIsLoading(true);
     const isCurrentlyOpen = currentDevice?.relayStatus === 'Open';
+    const targetState = !isCurrentlyOpen; // Trạng thái mục tiêu
+
+    console.log('🚪 Sending relay command:', { selectedDevice, currentState: isCurrentlyOpen, targetState });
 
     try {
-      const response = await fetch('http://localhost:3000/api/command', {
+      const response = await fetch('http://127.0.0.1:3000/api/command', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           deviceId: selectedDevice,
-          relay: !isCurrentlyOpen
+          relay: targetState
         })
       });
 
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ Command failed:', response.status, errorText);
         throw new Error(`Command failed: ${response.status}`);
       }
 
-      updateRelayStatus(selectedDevice, !isCurrentlyOpen);
+      const result = await response.json();
+      console.log('✅ Command sent successfully:', result);
 
-      if (isCurrentlyOpen) {
-        addActivity({
-          type: 'Command',
-          device: 'Relay Close',
-          description: `Manual command sent to main panel.`,
-          time: 'Just now',
-          icon: 'door_back',
-          color: 'text-orange-500'
-        });
-      } else {
-        addActivity({
-          type: "Command",
-          device: 'Relay Open',
-          description: `Manual command sent to main panel.`,
-          time: 'Just now',
-          icon: 'door_open',
-          color: 'text-orange-500'
-        });
-      }
+      // ⚠️ KHÔNG cập nhật state ngay - đợi ESP32 gửi state mới về qua WebSocket
+      // updateRelayStatus(selectedDevice, targetState);
+
+      // Log activity dựa trên target state
+      addActivity({
+        type: 'Command',
+        device: targetState ? 'Relay Open' : 'Relay Close',
+        description: `Command sent to main panel - waiting for device response...`,
+        time: 'Just now',
+        icon: targetState ? 'door_open' : 'door_back',
+        color: 'text-orange-500'
+      });
     } catch (error) {
-      console.error('Error toggling relay:', error);
+      console.error('❌ Error toggling relay:', error);
+      alert('Failed to send relay command. Check console for details.');
     } finally {
       setIsLoading(false);
     }
-  }, [currentDevice, updateRelayStatus, addActivity]);
+  }, [selectedDevice, currentDevice, addActivity]);
 
   // Extract button config outside component to prevent recreation
 const BUTTON_CONFIG = {
