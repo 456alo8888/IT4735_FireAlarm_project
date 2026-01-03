@@ -29,12 +29,12 @@ enum ControlMode { AUTO, MANUAL };
 #define DEVICE_ID "esp32_01"
  
 // ================= WIFI =================
-const char* ssid = "hiru";
-const char* password = "hiruhiru";
+const char* ssid = ""; //TODO
+const char* password = ""; //TODO 
  
 // ================= MQTT =================
-const char* mqtt_broker = "192.168.137.1";
-const int mqtt_port = 1883;
+const char* mqtt_broker = "192.168.137.1"; //TODO
+const int mqtt_port = 1883; 
  
 const char* topic_publish_flame = "fire_alarm/esp32_01/sensor/flame";
 const char* topic_publish_gas   = "fire_alarm/esp32_01/sensor/gas";

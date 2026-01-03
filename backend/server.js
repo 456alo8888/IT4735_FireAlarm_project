@@ -7,8 +7,8 @@ const cors = require('cors');
 
 const MQTT_BROKER = process.env.MQTT_BROKER || "localhost";
 const MQTT_PORT = Number(process.env.MQTT_PORT || 1883);
-const MQTT_USERNAME = process.env.MQTT_USERNAME || "hieupc";
-const MQTT_PASSWORD = process.env.MQTT_PASSWORD || "hieupc123";
+const MQTT_USERNAME = process.env.MQTT_USERNAME || "TODO";
+const MQTT_PASSWORD = process.env.MQTT_PASSWORD || "TODO";
 
 // const TOPIC_PUBLISH_FLAME = process.env.TOPIC_PUBLISH_FLAME || "esp32/flame_sensor";
 // const TOPIC_PUBLISH_GAS = process.env.TOPIC_PUBLISH_GAS || "esp32/gas_sensor";

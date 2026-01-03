@@ -20,8 +20,8 @@ AUTHORIZED_CHAT_ID = 123456789 # Your Telegram Chat ID (from @userinfobot)
 
 MQTT_BROKER = "localhost" # Using local Mosquitto broker
 MQTT_PORT = 1883
-MQTT_USERNAME = "hieupc" # Your MQTT Username
-MQTT_PASSWORD = "hieupc123" # Your MQTT Password
+MQTT_USERNAME = "TODO" # Your MQTT Username
+MQTT_PASSWORD = "TODO" # Your MQTT Password
 
 # 🔥 Updated topics to match backend & ESP32
 TOPIC_SUBSCRIBE_FLAME = "fire_alarm/esp32_01/sensor/flame"
