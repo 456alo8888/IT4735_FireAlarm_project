@@ -1,0 +1,18 @@
+# 1. Copy and configure environment variables
+cp .env.example .env
+# Edit .env with your Telegram bot token and chat ID
+
+# 2. Create mosquitto directories
+mkdir -p mosquitto/data mosquitto/log
+
+# 3. Start all services
+docker-compose up -d
+
+# 4. Check logs
+docker-compose logs -f
+
+# 5. Access the application
+# Frontend: http://localhost
+# Backend API: http://localhost:3000/api/latest
+# MQTT: localhost:1883
+# MQTT WebSocket: localhost:9001
