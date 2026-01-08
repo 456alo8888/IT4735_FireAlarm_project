@@ -78,7 +78,7 @@ export const DeviceProvider: React.FC<DeviceProviderProps> = ({ children }) => {
   // 🔥 4️⃣ WebSocket Listener — nhận flame + gas + state
   // ─────────────────────────────────────────────
   useEffect(() => {
-    const ws = new WebSocket("ws://localhost:8080");
+    const ws = new WebSocket(`ws://${window.location.host}/ws`);
 
     ws.onopen = () => {
       console.log('✅ WebSocket connected to backend');

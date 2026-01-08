@@ -23,7 +23,7 @@ export default defineConfig({
         assetFileNames: 'assets/[name]-[hash].[ext]'
       },
     },
-    minify: 'terser', // Use terser for better minification
+    minify: 'esbuild', // Use esbuild for minification (built into Vite)
     target: 'es2015', // Target modern browsers for better optimization
   },
   optimizeDeps: {

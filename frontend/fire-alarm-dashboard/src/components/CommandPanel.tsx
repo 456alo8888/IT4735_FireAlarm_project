@@ -27,7 +27,7 @@ const CommandPanel: React.FC = () => {
     console.log('🔔 Sending bell command:', { selectedDevice, currentState: isCurrentlyActive, targetState });
 
     try {
-      const response = await fetch('http://127.0.0.1:3000/api/command', {
+      const response = await fetch('/api/command', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -78,7 +78,7 @@ const CommandPanel: React.FC = () => {
     console.log('🚪 Sending relay command:', { selectedDevice, currentState: isCurrentlyOpen, targetState });
 
     try {
-      const response = await fetch('http://127.0.0.1:3000/api/command', {
+      const response = await fetch('/api/command', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

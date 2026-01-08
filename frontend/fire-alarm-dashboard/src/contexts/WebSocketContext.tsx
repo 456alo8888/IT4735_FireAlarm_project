@@ -1,13 +1,22 @@
 // src/contexts/WebSocketContext.tsx
-import React, { createContext, useEffect, useState } from "react";
+import { createContext, useEffect, useState } from "react";
+import type { ReactNode } from "react";
 
-export const WebSocketContext = createContext(null);
+interface WebSocketContextValue {
+  latestData: any;
+}
 
-export const WebSocketProvider = ({ children }) => {
-  const [latestData, setLatestData] = useState(null);
+export const WebSocketContext = createContext<WebSocketContextValue | null>(null);
+
+interface WebSocketProviderProps {
+  children: ReactNode;
+}
+
+export const WebSocketProvider = ({ children }: WebSocketProviderProps) => {
+  const [latestData, setLatestData] = useState<any>(null);
 
   useEffect(() => {
-    const ws = new WebSocket("ws://localhost:8080");
+    const ws = new WebSocket(`ws://${window.location.host}/ws`);
 
     ws.onopen = () => console.log("✔ WebSocket connected");
 

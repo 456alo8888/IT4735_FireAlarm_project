@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import { useActivities } from '../contexts/ActivityContext';
 import { Activity } from '../types';
 

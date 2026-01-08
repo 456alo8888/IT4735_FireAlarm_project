@@ -11,11 +11,11 @@
 enum ControlMode { AUTO, MANUAL };
  
 // ================= PIN ==================
-#define FLAME_DO_PIN 21  
-#define FLAME_AO_PIN 33
-#define GAS_DO_PIN 16
+#define FLAME_DO_PIN 18
+#define FLAME_AO_PIN 34
+#define GAS_DO_PIN 19
 #define GAS_AO_PIN 35
-#define BUZZER_PIN 23
+#define BUZZER_PIN 21
 #define VALVE_PIN 18 
 // ================= THRESHOLDS =================
 // Flame sensor: Giá trị THẤP = Phát hiện hồng ngoại (có lửa)

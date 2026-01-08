@@ -1,0 +1,100 @@
+version: '3.8'
+
+services:
+  # MongoDB database for sensor data storage
+  mongodb:
+    image: mongo:8
+    container_name: fire_alarm_mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+      - mongodb_config:/data/configdb
+    environment:
+      MONGO_INITDB_DATABASE: fire_alarm_db
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - fire_alarm_network
+
+  # Mosquitto MQTT Broker for ESP32 communication
+  mosquitto:
+    image: eclipse-mosquitto:2
+    container_name: fire_alarm_mosquitto
+    restart: unless-stopped
+    ports:
+      - "1883:1883"   # MQTT
+      - "9001:9001"   # MQTT over WebSocket
+    volumes:
+      - ./mosquitto/config:/mosquitto/config
+      - ./mosquitto/data:/mosquitto/data
+      - ./mosquitto/log:/mosquitto/log
+    networks:
+      - fire_alarm_network
+
+  # Backend Node.js/Express server
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: fire_alarm_backend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"   # Express API
+      - "8080:8080"   # WebSocket server
+    environment:
+      - MQTT_BROKER=mosquitto
+      - MQTT_PORT=1883
+      - MQTT_USERNAME=${MQTT_USERNAME:-}
+      - MQTT_PASSWORD=${MQTT_PASSWORD:-}
+      - MONGODB_URI=mongodb://mongodb:27017
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      mosquitto:
+        condition: service_started
+    networks:
+      - fire_alarm_network
+
+  # Frontend React dashboard (served by nginx)
+  frontend:
+    build:
+      context: ./frontend/fire-alarm-dashboard
+      dockerfile: Dockerfile
+    container_name: fire_alarm_frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - fire_alarm_network
+
+  # Telegram Bot for alerts and remote control
+  telegram_bot:
+    build:
+      context: ./bot
+      dockerfile: Dockerfile
+    container_name: fire_alarm_telegram_bot
+    restart: unless-stopped
+    env_file:
+      - ./bot/.env
+    depends_on:
+      - mosquitto
+    networks:
+      - fire_alarm_network
+
+volumes:
+  mongodb_data:
+    driver: local
+  mongodb_config:
+    driver: local
+
+networks:
+  fire_alarm_network:
+    driver: bridge

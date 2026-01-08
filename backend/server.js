@@ -7,8 +7,8 @@ const cors = require('cors');
 
 const MQTT_BROKER = process.env.MQTT_BROKER || "localhost";
 const MQTT_PORT = Number(process.env.MQTT_PORT || 1883);
-const MQTT_USERNAME = process.env.MQTT_USERNAME || "TODO";
-const MQTT_PASSWORD = process.env.MQTT_PASSWORD || "TODO";
+// const MQTT_USERNAME = process.env.MQTT_USERNAME || "TODO";
+// const MQTT_PASSWORD = process.env.MQTT_PASSWORD || "TODO";
 
 // const TOPIC_PUBLISH_FLAME = process.env.TOPIC_PUBLISH_FLAME || "esp32/flame_sensor";
 // const TOPIC_PUBLISH_GAS = process.env.TOPIC_PUBLISH_GAS || "esp32/gas_sensor";
@@ -29,7 +29,7 @@ app.use(cors());
 app.use(express.json());
 
 // ===== 1️⃣ Connect MongoDB =====
-const mongoClient = new MongoClient('mongodb://localhost:27017');
+const mongoClient = new MongoClient(process.env.MONGODB_URI || 'mongodb://localhost:27017');
 let flameCollection;
 let gasCollection;
 let stateCollection;
